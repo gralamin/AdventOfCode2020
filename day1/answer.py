@@ -1,5 +1,3 @@
-
-
 INPUT_FILENAME = "input_1"
 
 inputs = []
@@ -23,11 +21,28 @@ def find_values_matching(result, inputs):
                 else:
                     yield y, x
 
-results = set()
-for (x, y) in find_values_matching(2020, inputs):
-    results.add((x, y))
+def solve_1():
+    results = set()
+    for (x, y) in find_values_matching(2020, inputs):
+        results.add((x, y))
 
-for r in results:
-    print(r[0] * r[1])
+    print("Solutions 1")
+    for r in results:
+        print(r[0] * r[1])
+
+def solve_2():
+    results = set()
+    for z in inputs:
+        for (x, y) in find_values_matching(2020-z, inputs):
+            if x == z or y == z:
+                continue
+            results.add(tuple(sorted([x,y,z])))
+
+    print("Solutions 2")
+    for r in results:
+        print(r[0] * r[1] * r[2])
+
+solve_1()
+solve_2()
 
 
