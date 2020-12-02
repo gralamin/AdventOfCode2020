@@ -1,5 +1,4 @@
 class Policy:
-
     def __init__(self, str):
         split_str = str.split(" ")
         min_max = split_str[0].split("-")
@@ -15,8 +14,8 @@ class Policy:
             count += 1
         return count == 1
 
-class PasswordInput:
 
+class PasswordInput:
     def __init__(self, str):
         split_str = str.split(":")
         policy = split_str[0]
