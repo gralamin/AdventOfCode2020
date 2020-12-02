@@ -4,14 +4,14 @@ class Policy:
         split_str = str.split(" ")
         min_max = split_str[0].split("-")
         self.letter = split_str[1]
-        self.min_occurance = int(min_max[0])
-        self.max_occurance = int(min_max[1])
+        self.first_index = int(min_max[0]) - 1
+        self.second_index = int(min_max[1]) - 1
 
     def is_valid(self, password):
         count = 0
-        if password[self.min_occurance-1] == self.letter:
+        if password[self.first_index] == self.letter:
             count += 1
-        if password[self.max_occurance-1] == self.letter:
+        if password[self.second_index] == self.letter:
             count += 1
         return count == 1
 
