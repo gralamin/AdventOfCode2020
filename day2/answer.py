@@ -8,8 +8,12 @@ class Policy:
         self.max_occurance = int(min_max[1])
 
     def is_valid(self, password):
-        num = len([x for x in password if x == self.letter])
-        return num >= self.min_occurance and num <= self.max_occurance
+        count = 0
+        if password[self.min_occurance-1] == self.letter:
+            count += 1
+        if password[self.max_occurance-1] == self.letter:
+            count += 1
+        return count == 1
 
 class PasswordInput:
 
