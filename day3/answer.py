@@ -1,3 +1,6 @@
+import math
+
+
 class Toboggan:
     def __init__(self):
         self.x = 0
@@ -34,20 +37,29 @@ class Slope:
     def move(self, character, map):
         character.move(self.right, self.down, map.maxX, map.maxY)
 
+    def __str__(self):
+        return f"Right {self.right} Down {self.down}"
 
-slope = Slope(3, 1)
+
 skimap = None
-
 with open("input", "r") as f:
     skimap = SkiMap([r for r in f])
 
-me = Toboggan()
-# Check starting position for a collision
-trees_hit = 1 if skimap.is_on_tree(me) else 0
+possible_slopes = [Slope(1, 1), Slope(3, 1), Slope(5, 1), Slope(7, 1), Slope(1, 2)]
 
-while me.y < skimap.maxY:
-    slope.move(me, skimap)
-    if skimap.is_on_tree(me):
-        trees_hit += 1
+results = []
 
-print("Trees hit: ", trees_hit)
+for slope in possible_slopes:
+    me = Toboggan()
+    # Check starting position for a collision
+    trees_hit = 1 if skimap.is_on_tree(me) else 0
+
+    while me.y < skimap.maxY:
+        slope.move(me, skimap)
+        if skimap.is_on_tree(me):
+            trees_hit += 1
+
+    print(slope, "Trees hit: ", trees_hit)
+    results.append(trees_hit)
+
+print("final result: ", math.prod(results))
