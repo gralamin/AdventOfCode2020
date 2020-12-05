@@ -1,3 +1,5 @@
+import re
+
 BIRTH_YEAR = "byr"
 ISSUE_YEAR = "iyr"
 EXPIRATION_YEAR = "eyr"
@@ -6,6 +8,16 @@ HAIR_COLOR = "hcl"
 EYE_COLOR = "ecl"
 PASSPORT_ID = "pid"
 COUNTRY_ID = "cid"
+
+
+def validate_height(height):
+    regex_match = re.match("^([0-9]+)(cm|in)$", height)
+    if regex_match:
+        num = int(regex_match.groups()[0])
+        cm_in = regex_match.groups()[1]
+        if cm_in == "cm":
+            return num >= 150 and num <= 193
+        return num >= 59 and num <= 76
 
 
 class Passport:
@@ -43,19 +55,20 @@ class Passport:
 
     def is_valid(self):
         check_attrs = [
-            self.passport_id,
-            self.eye_color,
-            self.hair_color,
-            self.height,
-            self.expiration_year,
-            self.issue_year,
-            self.birth_year,
+            self.passport_id
+            and len(self.passport_id) == 9
+            and int(self.passport_id) >= 0,
+            self.eye_color in ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"],
+            self.hair_color and re.match("^#[0-9a-f]{6}$", self.hair_color),
+            self.height and validate_height(self.height),
+            self.expiration_year and re.match("^20(2[0-9]|30)$", self.expiration_year),
+            self.issue_year and re.match("^20(1[0-9]|20)$", self.issue_year),
+            self.birth_year
+            and int(self.birth_year) >= 1920
+            and int(self.birth_year) <= 2002,
         ]
 
-        def is_invalid(f):
-            return f is None or f == ""
-
-        return all(not is_invalid(x) for x in check_attrs)
+        return all(check_attrs)
 
     def __str__(self):
         sb = [
@@ -85,4 +98,4 @@ def get_input_passports():
 
 
 valid_passports = [x for x in get_input_passports() if x.is_valid()]
-print(f"Answer 1: {len(valid_passports)}")
+print(f"Answer 2: {len(valid_passports)}")
