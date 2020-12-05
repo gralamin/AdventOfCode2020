@@ -72,3 +72,21 @@ with open("input", "r") as f:
 results = [b.get_seat_id() for b in boarding_passes]
 
 print(f"Top result {max(results)}")
+
+
+def find_your_seat(results):
+    # Sorting: O(n log(n)) using default algorithm is essentially quick sort
+    # (actually a bit faster I think)
+    sorted_results = sorted(results)
+
+    # Your seat is going to be a jump, EG: The difference between the previous seat
+    # and the next seat will be 2. We can go through the sorted list until we find one
+    # worst case O(n) on this part.
+    previous_seat = sorted_results[0]
+    for cur_seat in sorted_results[1:]:
+        if cur_seat - previous_seat == 2:
+            return cur_seat - 1
+        previous_seat = cur_seat
+
+
+print(f"Your seat: {find_your_seat(results)}")
