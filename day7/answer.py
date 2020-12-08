@@ -2,6 +2,7 @@ import re
 
 descriptor_map = {}
 shiny_gold_cache = {}
+sub_bag_cache = {}
 
 
 class BagMap:
@@ -27,7 +28,8 @@ class BagMap:
     def __ne__(self, other):
         return self.descriptors != other.descriptors
 
-    # Essentially a depth first search, with optimizations to not repeat known results.
+    # Essentially a depth first search, with optimizations to not repeat
+    # known results.
     def contains_shiny_gold(self):
         if self in shiny_gold_cache:
             return shiny_gold_cache[self]
@@ -37,7 +39,21 @@ class BagMap:
         shiny_gold_cache[self] = result
         return result
 
+    def sub_bag_count(self):
+        if self in sub_bag_cache:
+            return sub_bag_cache[self]
+        total = 0
+        for sub_bag, multiplier in self.subnodes.items():
+            # Non-leaf node, multiple its sub by the the count. On a leaf node,
+            # becomes 0
+            inside_bag_count = sub_bag.sub_bag_count() * multiplier
+            total += multiplier
+            total += inside_bag_count
+        sub_bag_cache[self] = total
+        return total
 
+
+# with open("input_test", "r") as f:
 with open("input", "r") as f:
     for x in f:
         x = x.strip()
@@ -56,4 +72,6 @@ with open("input", "r") as f:
             bag.add_subnode(num, sub_descriptors)
 
 results = [x for x in descriptor_map.values() if x.contains_shiny_gold()]
-print(len(results))
+print(len(results), "Contain shiny gold bags")
+
+print(f"Shiny gold contains {descriptor_map['shiny gold'].sub_bag_count()} other bags.")
