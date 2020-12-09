@@ -1,4 +1,5 @@
 from enum import Enum
+from copy import deepcopy
 
 
 class COMMAND_TYPES(Enum):
@@ -38,6 +39,13 @@ class Command:
             stack_pointer += 1
         return (accumulator, stack_pointer)
 
+    def switch_operation(self):
+        if self.cmd == COMMAND_TYPES.JMP:
+            return Command(f"{CMD_NOP} {self.num}")
+        elif self.cmd == COMMAND_TYPES.NOP:
+            return Command(f"{CMD_JMP} {self.num}")
+        return Command(f"{CMD_ACC} {self.num}")
+
     def __str__(self):
         return f"{self.cmd} {self.num}"
 
@@ -45,16 +53,38 @@ class Command:
 with open("input", "r") as f:
     program = [Command(x) for x in f]
 
-seen_commands = set()
 
+def execute_until_loop_or_end(program):
+    stack_pointer = 0
+    accumulator = 0
+    seen_commands = set()
+    while stack_pointer < len(program) and stack_pointer not in seen_commands:
+        command = program[stack_pointer]
+        seen_commands.add(stack_pointer)
+        accumulator, stack_pointer = command.perform_operation(
+            stack_pointer, accumulator
+        )
+    return (stack_pointer >= len(program), accumulator)
+
+
+seen_commands = set()
 stack_pointer = 0
 accumulator = 0
-while stack_pointer not in seen_commands:
-    seen_commands.add(stack_pointer)
+while stack_pointer < len(program):
     command = program[stack_pointer]
+    if stack_pointer in seen_commands:
+        if command.cmd != COMMAND_TYPES.ACC:
+            candidate_program = deepcopy(program)
+            candidate_program[stack_pointer] = command.switch_operation()
+            did_end, value = execute_until_loop_or_end(candidate_program)
+            if did_end:
+                print(f"{stack_pointer} {command} should be changed")
+                accumulator = value
+                break
+    seen_commands.add(stack_pointer)
     accumulator, stack_pointer = command.perform_operation(stack_pointer, accumulator)
     # print(command)
     # print("accumulator", accumulator)
     # print("stack_pointer", stack_pointer)
 
-print("Accumulator before loop", accumulator)
+print("Accumulator at termination", accumulator)
