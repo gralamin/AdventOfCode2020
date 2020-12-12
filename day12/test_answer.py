@@ -17,6 +17,9 @@ class IntegrationTests(unittest.TestCase):
     def test_part1(self):
         self.assertEqual(answer.part1(self.inputs), 25)
 
+    def test_part2(self):
+        self.assertEqual(answer.part2(self.inputs), 286)
+
 
 class TestDirection(unittest.TestCase):
     def test_turn_left_0(self):
@@ -149,6 +152,14 @@ class TestCoordinate(unittest.TestCase):
         self.assertNotEqual(self.coordinate, answer.Coordinate(-1, -1))
         self.assertNotEqual(self.coordinate, answer.Coordinate(1, 1))
 
+    def test_add(self):
+        self.assertEqual(
+            answer.Coordinate(1, 3) + answer.Coordinate(5, -6), answer.Coordinate(6, -3)
+        )
+
+    def test_mult(self):
+        self.assertEqual(answer.Coordinate(1, 3) * 3, answer.Coordinate(3, 9))
+
     def test_north(self):
         self.assertEqual(self.coordinate.north(5), answer.Coordinate(0, 5))
 
@@ -205,6 +216,59 @@ class TestShip(unittest.TestCase):
         self.ship.do_action(answer.Actions.RIGHT, 90)
         self.assertEqual(self.ship.position, answer.Coordinate(0, 0))
         self.assertEqual(self.ship.facing, answer.Direction.SOUTH)
+
+    def test_ship_waypoint_right_90(self):
+        self.ship.waypoint = answer.Coordinate(5, 5)
+        self.ship.do_action_waypoint(answer.Actions.RIGHT, 90)
+        # To roate right around 0,0 we change from the top right quandrant,
+        #  to the bottom right quadrant so y changes
+        self.assertEqual(self.ship.waypoint, answer.Coordinate(5, -5))
+        self.ship.do_action_waypoint(answer.Actions.RIGHT, 90)
+        # To roate right around 0,0 we change from the bottom right quandrant,
+        #  to the bottom left quadrant so x changes
+        self.assertEqual(self.ship.waypoint, answer.Coordinate(-5, -5))
+        self.ship.do_action_waypoint(answer.Actions.RIGHT, 90)
+        # To roate right around 0,0 we change from the bottom left quandrant,
+        # to the top left quadrant so y changes
+        self.assertEqual(self.ship.waypoint, answer.Coordinate(-5, 5))
+        self.ship.do_action_waypoint(answer.Actions.RIGHT, 90)
+        # To roate right around 0,0 we change from the top left quandrant,
+        # to the top right quadrant, so x changes
+        self.assertEqual(self.ship.waypoint, answer.Coordinate(5, 5))
+
+    def test_ship_waypoint_right_werid_degrees(self):
+        self.ship.waypoint = answer.Coordinate(5, 5)
+        self.ship.do_action_waypoint(answer.Actions.RIGHT, 20)
+        self.assertEqual(self.ship.waypoint, answer.Coordinate(6, 3))
+        self.ship.do_action_waypoint(answer.Actions.RIGHT, 30)
+        self.assertEqual(self.ship.waypoint, answer.Coordinate(7, 0))
+        self.ship.do_action_waypoint(answer.Actions.RIGHT, 40)
+        # Although at 90, we have hit multiple rounding errors.
+        self.assertEqual(self.ship.waypoint, answer.Coordinate(5, -4))
+
+        # Correct rounding errors.
+        self.ship.waypoint = answer.Coordinate(5, -5)
+
+        self.ship.do_action_waypoint(answer.Actions.RIGHT, 132)
+        self.assertEqual(self.ship.waypoint, answer.Coordinate(-7, 0))
+        self.ship.do_action_waypoint(answer.Actions.RIGHT, 49)
+        self.assertEqual(self.ship.waypoint, answer.Coordinate(-5, 5))
+
+    def test_ship_waypoint_left_90(self):
+        # See logic for right, but reverse it.
+        self.ship.waypoint = answer.Coordinate(5, 5)
+        self.ship.do_action_waypoint(answer.Actions.LEFT, 90)
+        self.assertEqual(self.ship.waypoint, answer.Coordinate(-5, 5))
+        self.ship.do_action_waypoint(answer.Actions.LEFT, 90)
+        self.assertEqual(self.ship.waypoint, answer.Coordinate(-5, -5))
+        self.ship.do_action_waypoint(answer.Actions.LEFT, 90)
+        self.assertEqual(self.ship.waypoint, answer.Coordinate(5, -5))
+        self.ship.do_action_waypoint(answer.Actions.LEFT, 90)
+        self.assertEqual(self.ship.waypoint, answer.Coordinate(5, 5))
+
+    def test_ship_toward_waypoint(self):
+        self.ship.move_toward_waypoint(5)
+        self.assertEqual(self.ship.position, answer.Coordinate(10 * 5, 1 * 5))
 
     def test_ship_turn_and_forward(self):
         self.ship.do_action(answer.Actions.LEFT, 90)

@@ -1,6 +1,7 @@
 from enum import Enum
 import re
 from collections import namedtuple
+import math
 
 
 class Direction(Enum):
@@ -62,6 +63,11 @@ class Coordinate:
     def __add__(self, other):
         return Coordinate(self.x + other.x, self.y + other.y)
 
+    def __mul__(self, integer):
+        return Coordinate(self.x * integer, self.y * integer)
+
+    __rmul__ = __mul__
+
     def __str__(self):
         return f"({self.x}, {self.y})"
 
@@ -95,12 +101,14 @@ class Coordinate:
 
 # Define starting point as 0
 STARTING_POSITION = Coordinate(0, 0)
+STARTING_WAYPOINT = Coordinate(10, 1)
 
 
 class Ship:
     def __init__(self):
         self.facing = Direction.EAST
         self.position = STARTING_POSITION
+        self.waypoint = STARTING_WAYPOINT
 
     def do_action(self, action, number):
         if action == Actions.NORTH:
@@ -119,6 +127,46 @@ class Ship:
             self.move_forward(number)
         else:
             raise ValueError(f"Unknown action {action}")
+
+    def do_action_waypoint(self, action, number):
+        if action == Actions.NORTH:
+            self.waypoint = self.waypoint.north(number)
+        elif action == Actions.EAST:
+            self.waypoint = self.waypoint.east(number)
+        elif action == Actions.SOUTH:
+            self.waypoint = self.waypoint.south(number)
+        elif action == Actions.WEST:
+            self.waypoint = self.waypoint.west(number)
+        elif action == Actions.LEFT:
+            self.turn_waypoint_left(number)
+        elif action == Actions.RIGHT:
+            self.turn_waypoint_right(number)
+        elif action == Actions.FORWARD:
+            self.move_toward_waypoint(number)
+        else:
+            raise ValueError(f"Unknown action {action}")
+
+    def turn_waypoint_left(self, number):
+        self._turn_waypoint_counterclockwise(number)
+
+    def _turn_waypoint_counterclockwise(self, number):
+        # To rotate around an axis, we can use a rotational matrix
+        # This solves out to the following equation:
+        radians = math.radians(number)
+        cosin = math.cos(radians)
+        sin = math.sin(radians)
+        new_x = self.waypoint.x * cosin - self.waypoint.y * sin
+        new_y = self.waypoint.x * sin + self.waypoint.y * cosin
+
+        # Floating points, round them to integers.
+        self.waypoint = Coordinate(int(round(new_x)), int(round(new_y)))
+
+    def turn_waypoint_right(self, number):
+        # Use above, but negative number
+        self._turn_waypoint_counterclockwise(-1 * number)
+
+    def move_toward_waypoint(self, number):
+        self.position = self.position + self.waypoint * number
 
     def move_forward(self, number):
         if self.facing == Direction.EAST:
@@ -179,6 +227,15 @@ def part1(parsed_actions):
     return distance
 
 
+def part2(parsed_actions):
+    ship = Ship()
+    for parsed_action in parsed_actions:
+        ship.do_action_waypoint(parsed_action.action, parsed_action.number)
+    distance = ship.manhanttan_distance(STARTING_POSITION)
+    return distance
+
+
 if __name__ == "__main__":
     parsed_inputs = get_inputs()
     print("Part 1: ", part1(parsed_inputs))
+    print("Part 2: ", part2(parsed_inputs))
