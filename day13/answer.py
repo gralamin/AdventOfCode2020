@@ -1,3 +1,6 @@
+from functools import reduce
+
+
 def get_input():
     start_timestamp = 0
     buses = []
@@ -26,6 +29,39 @@ def part_1(start_timestamp, buses):
     return lowest_wait * lowest_bus
 
 
+def chinese_remainder(n, a):
+    # Implementation stolen from Rosetta Code.
+    sum = 0
+    prod = reduce(lambda a, b: a * b, n)
+    for n_i, a_i in zip(n, a):
+        p = prod // n_i
+        sum += a_i * mul_inv(p, n_i) * p
+    return sum % prod
+
+
+def mul_inv(a, b):
+    b0 = b
+    x0, x1 = 0, 1
+    if b == 1:
+        return 1
+    while a > 1:
+        q = a // b
+        a, b = b, a % b
+        x0, x1 = x1 - q * x0, x0
+    if x1 < 0:
+        x1 += b0
+    return x1
+
+
+def part_2(buses):
+    # This is the "Chinese remainder Theorem"
+    bus_indexes = [(i, int(bus)) for i, bus in enumerate(buses) if bus != "x"]
+    divisors = [bus for _, bus in bus_indexes]
+    remainders = [bus - i for i, bus in bus_indexes]
+    return chinese_remainder(divisors, remainders)
+
+
 if __name__ == "__main__":
     START, BUSES = get_input()
     print("Part 1:", part_1(START, BUSES))
+    print("Part 2:", part_2(BUSES))
