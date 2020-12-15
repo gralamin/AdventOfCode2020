@@ -1,5 +1,6 @@
 from enum import Enum
 import re
+import time
 
 
 class InstructionType(Enum):
@@ -138,6 +139,9 @@ def part_2(input_instructions):
 
 
 if __name__ == "__main__":
+    start = time.perf_counter()
     instructions = get_instructions()
     print("Part 1: ", part_1(instructions))
     print("Part 2: ", part_2(instructions))
+    end = time.perf_counter()
+    print("Runtime: {:.3f}".format(end-start))
