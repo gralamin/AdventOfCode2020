@@ -54,6 +54,31 @@ class BitMask:
             value_as_binary_list[index] = mask_bit
         return int("".join(value_as_binary_list), 2)
 
+    def mask_possible_addresses(self, address):
+        value_as_binary_list = (["0"] * 36) + list("{0:b}".format(address))
+        value_as_binary_list = value_as_binary_list[-36:]
+        floating_positions = []
+        for index, mask_bit in enumerate(self.mask):
+            if mask_bit == "0":
+                continue
+            elif mask_bit == "1":
+                value_as_binary_list[index] = mask_bit
+            elif mask_bit == "X":
+                value_as_binary_list[index] = "F"
+                floating_positions.append(index)
+
+        # Make a list of all possible mask bits
+        possible_combinations = []
+        for x in range(2 ** len(floating_positions)):
+            as_binary = list("{0:b}".format(x))
+            as_binary = ["0"] * (len(floating_positions) - len(as_binary)) + as_binary
+            possible_combinations.append(as_binary)
+
+        for x in possible_combinations:
+            for floating_index, value_index in enumerate(floating_positions):
+                value_as_binary_list[value_index] = x[floating_index]
+            yield int("".join(value_as_binary_list), 2)
+
 
 class Memory:
     def __init__(self):
@@ -80,6 +105,15 @@ class ComputerState:
         else:
             raise ValueError("Unknown instruction")
 
+    def do_instruction2(self, instruction):
+        if instruction.ins_type == InstructionType.MASK:
+            self.mask.set_mask(instruction.arg2)
+        elif instruction.ins_type == InstructionType.MEM:
+            for address in self.mask.mask_possible_addresses(instruction.arg1):
+                self.memory.set_address(address, instruction.arg2)
+        else:
+            raise ValueError("Unknown instruction")
+
     def get_sum(self):
         return self.memory.get_sum()
 
@@ -96,6 +130,14 @@ def part_1(input_instructions):
     return state.get_sum()
 
 
+def part_2(input_instructions):
+    state = ComputerState()
+    for instruction in input_instructions:
+        state.do_instruction2(instruction)
+    return state.get_sum()
+
+
 if __name__ == "__main__":
     instructions = get_instructions()
     print("Part 1: ", part_1(instructions))
+    print("Part 2: ", part_2(instructions))
