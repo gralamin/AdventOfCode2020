@@ -1,3 +1,6 @@
+import time
+
+
 def get_input():
     with open("input", "r") as f:
         numbers = [int(x) for x in f.read().strip().split(",")]
@@ -20,10 +23,24 @@ def van_eck_with_start_state(start_state, turns):
 
 def part_1(numbers):
     # This is a Van Eck Sequence
-    return list(van_eck_with_start_state(numbers, 2020))[-1]
+    start = time.perf_counter()
+    result = list(van_eck_with_start_state(numbers, 2020))[-1]
+    end = time.perf_counter()
+    print("P1 Runtime: {:.3f}".format(end - start))
+    return result
+
+
+def part_2(numbers):
+    # This is a Van Eck Sequence
+    start = time.perf_counter()
+    result = list(van_eck_with_start_state(numbers, 30000000))[-1]
+    end = time.perf_counter()
+    print("P2 Runtime: {:.3f}".format(end - start))
+    return result
 
 
 if __name__ == "__main__":
     numbers = get_input()
     print(numbers)
     print(f"Part 1: '{part_1(numbers)}'")
+    print(f"Part 2: '{part_2(numbers)}'")
