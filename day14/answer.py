@@ -144,4 +144,4 @@ if __name__ == "__main__":
     print("Part 1: ", part_1(instructions))
     print("Part 2: ", part_2(instructions))
     end = time.perf_counter()
-    print("Runtime: {:.3f}".format(end-start))
+    print("Runtime: {:.3f}".format(end - start))
