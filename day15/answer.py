@@ -16,8 +16,9 @@ def van_eck_with_start_state(start_state, turns):
         offset_turn = x + turn_offset
         # print(f"{offset_turn}: {value}, {seen}")
         last = {value: offset_turn}
-        value = offset_turn - seen.get(value, offset_turn)
-        seen.update(last)
+        new_value = offset_turn - seen.get(value, offset_turn)
+        seen[value] = last[value]
+        value = new_value
     yield value
 
 
