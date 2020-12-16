@@ -23,3 +23,24 @@ class TestIntegration(TestCase):
 
     def test_part_one_example7(self):
         self.assertEqual(answer.part_1([3, 1, 2]), 1836)
+
+    def test_part_two_example1(self):
+        self.assertEqual(answer.part_2([0, 3, 6]), 175594)
+
+    def test_part_two_example2(self):
+        self.assertEqual(answer.part_2([1, 3, 2]), 2578)
+
+    def test_part_two_example3(self):
+        self.assertEqual(answer.part_2([2, 1, 3]), 3544142)
+
+    def test_part_two_example4(self):
+        self.assertEqual(answer.part_2([1, 2, 3]), 261214)
+
+    def test_part_two_example5(self):
+        self.assertEqual(answer.part_2([2, 3, 1]), 6895259)
+
+    def test_part_two_example6(self):
+        self.assertEqual(answer.part_2([3, 2, 1]), 18)
+
+    def test_part_two_example7(self):
+        self.assertEqual(answer.part_2([3, 1, 2]), 362)
