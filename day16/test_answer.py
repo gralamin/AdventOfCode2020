@@ -69,3 +69,35 @@ class TestIntegration(TestCase):
             ),
             71,
         )
+
+
+class TestIntegrationPart2(TestCase):
+    def setUp(self):
+        self.input_rules = [
+            answer.Rule(
+                f"{answer.DEPART} class",
+                set([0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]),
+            ),
+            answer.Rule(
+                "row",
+                set([0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]),
+            ),
+            answer.Rule(
+                f"{answer.DEPART} seat",
+                set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19]),
+            ),
+        ]
+        self.input_your_ticket = answer.Ticket([11, 12, 13])
+        self.input_nearby_tickets = [
+            answer.Ticket([3, 9, 18]),
+            answer.Ticket([15, 1, 5]),
+            answer.Ticket([5, 14, 9]),
+        ]
+
+    def test_part_two_example(self):
+        self.assertEqual(
+            answer.part_2(
+                self.input_rules, self.input_your_ticket, self.input_nearby_tickets
+            ),
+            12 * 13,
+        )
