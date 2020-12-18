@@ -41,6 +41,43 @@ class Coordinate3D:
                         yield type(self)(self.x + x, self.y + y, self.z + z)
 
 
+class Coordinate4D(Coordinate3D):
+    def __init__(self, x, y, z, w):
+        super().__init__(x, y, z)
+        self.w = w
+
+    def __repr__(self):
+        return f"({self.x}, {self.y}, {self.z}, {self.w})"
+
+    def __eq__(self, other):
+        return (
+            self.x == other.x
+            and self.y == other.y
+            and self.z == other.z
+            and self.w == other.w
+        )
+
+    def __hash__(self):
+        return hash((self.x, self.y, self.z, self.w))
+
+    def is_neighbor(self, other):
+        if self == other:
+            return False
+        super_answer = super().is_neighbor(other)
+        diff_w = abs(self.w - other.w)
+        return super_answer and diff_w <= 1
+
+    def generate_neighbors(self):
+        for x in range(-1, 2):
+            for y in range(-1, 2):
+                for z in range(-1, 2):
+                    for w in range(-1, 2):
+                        if not (x == 0 and y == 0 and z == 0 and w == 0):
+                            yield type(self)(
+                                self.x + x, self.y + y, self.z + z, self.w + w
+                            )
+
+
 class ConwayCube:
     def __init__(self, coordinate, state):
         self.coordinate = coordinate
@@ -166,6 +203,61 @@ class CubeGrid3D:
         return "\n".join(result)
 
 
+class CubeGrid4D(CubeGrid3D):
+    def __repr__(self):
+        result = []
+        min_x = float("inf")
+        min_y = float("inf")
+        min_z = float("inf")
+        min_w = float("inf")
+        max_x = float("-inf")
+        max_y = float("-inf")
+        max_z = float("-inf")
+        max_w = float("-inf")
+        active_coordinates = []
+        for coordinate in self.get_active_coordinates():
+            min_x = min(min_x, coordinate.x)
+            min_y = min(min_y, coordinate.y)
+            min_z = min(min_z, coordinate.z)
+            min_w = min(min_w, coordinate.w)
+            max_x = max(max_x, coordinate.x)
+            max_y = max(max_y, coordinate.y)
+            max_z = max(max_z, coordinate.z)
+            max_w = max(max_w, coordinate.w)
+            active_coordinates.append(coordinate)
+        if min_x == float("inf"):
+            min_x = 0
+            max_x = 0
+        if min_y == float("inf"):
+            min_y = 0
+            max_y = 0
+        if min_z == float("inf"):
+            min_z = 0
+            max_z = 0
+        if min_w == float("inf"):
+            min_w = 0
+            max_w = 0
+
+        for w in range(min_w, min_w + 1):
+            for z in range(min_z, max_z + 1):
+                new_z_layer = [f"z={z}, w={w}"]
+                z_grid = []
+                for y in range(min_y, max_y + 1):
+                    row_in_progress = []
+                    for x in range(min_x, max_x + 1):
+                        character = (
+                            ACTIVE
+                            if Coordinate4D(x, y, z, w) in active_coordinates
+                            else INACTIVE
+                        )
+                        row_in_progress.append(character)
+                    z_grid.append("".join(row_in_progress))
+                new_z_layer.append("\n".join(z_grid))
+                result.append("")
+                result.append("\n".join(new_z_layer))
+        return "\n".join(result)
+
+
 def get_input():
     with open("input", "r") as f:
         lines = [line.strip() for line in f]
@@ -195,9 +287,34 @@ def part_1(input_state, num_cycles=6, debug=False):
     return cur_state.num_active
 
 
+def part_2(input_state, num_cycles=6, debug=False):
+    input_state = [
+        ConwayCube(
+            Coordinate4D(c.coordinate.x, c.coordinate.y, c.coordinate.z, 0), c.state
+        )
+        for c in input_state
+    ]
+    input_state = CubeGrid4D(input_state)
+    cur_state = input_state
+    for i in range(num_cycles):
+        if debug:
+            print(f"\nCycle {i}")
+            print(cur_state)
+        cur_state = cur_state.cycle()
+    if debug:
+        print(f"\nCycle {num_cycles}")
+        print(cur_state)
+    return cur_state.num_active
+
+
 if __name__ == "__main__":
     input_state = get_input()
     start = time.perf_counter()
     print("Part 1:", part_1(input_state))
+    end = time.perf_counter()
+    print("Completed in {}ms.".format((end - start) * 1000))
+    print("\n")
+    start = time.perf_counter()
+    print("Part 2:", part_2(input_state))
     end = time.perf_counter()
     print("Completed in {}ms.".format((end - start) * 1000))
