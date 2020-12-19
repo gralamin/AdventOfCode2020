@@ -4,6 +4,13 @@ import time
 single_character_rule = re.compile('"(.)"')
 
 
+class BinaryTreeNode:
+    def __init__(self, symbol, child1, child2=None):
+        self.symbol = symbol
+        self.child1 = child1
+        self.chil2
+
+
 class Rule:
     def __init__(self, in_str):
         number, criteria = in_str.split(":")
@@ -50,6 +57,34 @@ class Rule:
             return regex
 
 
+def match(message, all_rules):
+    results = _match(0, 0, message, all_rules)
+    return any([result == len(message) for result in results])
+
+
+def _match(rule_index, message_index, message, all_rules):
+    if message_index == len(message):
+        return []
+    results = []
+    new_rule = all_rules[rule_index]
+    if new_rule.character:
+        if new_rule.character == message[message_index]:
+            # return the length matched
+            return [message_index + 1]
+        else:
+            return []
+    for possibe_combination in new_rule.rule_conditions:
+        start_index = [message_index]
+        for sub_rule in possibe_combination:
+            new_start_index = []
+            for i in start_index:
+                sub_results = _match(sub_rule, i, message, all_rules)
+                new_start_index.extend(sub_results)
+            start_index = new_start_index
+        results.extend(start_index)
+    return results
+
+
 def get_input():
     section = 0
     rules = []
@@ -70,6 +105,7 @@ def get_input():
 
 
 def part1(rules, messages):
+    # Regexes sufficient here, don't need a full abstract syntax tree.
     rule_dict = {rule.number: rule for rule in rules}
     matches = []
     rule_cache = {}
@@ -77,6 +113,15 @@ def part1(rules, messages):
     for message in messages:
         if re.match("^" + regex + "$", message):
             matches.append(message)
+    return len(matches)
+
+
+def part2(rules, messages):
+    rule_dict = {rule.number: rule for rule in rules}
+    rule_dict[8] = Rule("8: 42 | 42 8")
+    rule_dict[11] = Rule("11: 42 31 | 42 11 31")
+    matches = [match(x, rule_dict) for x in messages]
+    matches = [x for x in matches if x]
     return len(matches)
 
 
@@ -88,6 +133,6 @@ if __name__ == "__main__":
     print("Completed in {}ms.".format((end - start) * 1000))
     print("\n")
     start = time.perf_counter()
-    print("Part 2:")
+    print("Part 2:", part2(rules, messages))
     end = time.perf_counter()
     print("Completed in {}ms.".format((end - start) * 1000))
