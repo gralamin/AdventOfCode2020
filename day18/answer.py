@@ -66,25 +66,29 @@ class MathEvaluator:
         elif symbol == MATH_SYMBOLS.MULTIPLICATION:
             return self.precedence_multiply
         else:
-            return ValueError(f"Trying to get precedence of {symbol}")
+            raise ValueError(f"Trying to get precedence of {symbol}")
 
     def _shunting_yard(self, lexed):
         stack = []
         output = deque()
         for x in lexed:
             if x == MATH_SYMBOLS.ADDITION:
-                if stack:
+                while len(stack) > 0 and stack[-1] != MATH_SYMBOLS.OPEN_BRACKET:
                     precendence_x = self._get_precedence(x)
                     precendence_top = self._get_precedence(stack[-1])
-                    if precendence_top == precendence_x:
+                    if precendence_x <= precendence_top:
                         output.append(stack.pop())
+                    else:
+                        break
                 stack.append(x)
             elif x == MATH_SYMBOLS.MULTIPLICATION:
-                if stack:
+                while len(stack) > 0 and stack[-1] != MATH_SYMBOLS.OPEN_BRACKET:
                     precendence_x = self._get_precedence(x)
                     precendence_top = self._get_precedence(stack[-1])
-                    if precendence_top == precendence_x:
+                    if precendence_x <= precendence_top:
                         output.append(stack.pop())
+                    else:
+                        break
                 stack.append(x)
             elif x == MATH_SYMBOLS.OPEN_BRACKET:
                 stack.append(MATH_SYMBOLS.OPEN_BRACKET)
@@ -117,6 +121,12 @@ def part1(input_value):
     return sum(results)
 
 
+def part2(input_value):
+    evaluator = MathEvaluator(precedence_plus=2, precedence_multiply=1)
+    results = [evaluator.evaluate(x) for x in input_value]
+    return sum(results)
+
+
 if __name__ == "__main__":
     expressions = get_input()
     start = time.perf_counter()
@@ -125,6 +135,6 @@ if __name__ == "__main__":
     print("Completed in {}ms.".format((end - start) * 1000))
     print("\n")
     start = time.perf_counter()
-    print("Part 2:")
+    print("Part 2:", part2(expressions))
     end = time.perf_counter()
     print("Completed in {}ms.".format((end - start) * 1000))
