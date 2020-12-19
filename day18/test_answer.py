@@ -16,3 +16,18 @@ class TestIntegration(TestCase):
             self.assertEqual(answer.part1([expression]), result)
 
         self.assertEqual(answer.part1(expressions.keys()), sum(expressions.values()))
+
+    def test_part_2(self):
+        print("\n\n")
+        expressions = {
+            "1 + 2 * 3 + 4 * 5 + 6": 231,
+            "1 + (2 * 3) + (4 * (5 + 6))": 51,
+            "2 * 3 + (4 * 5)": 46,
+            "5 + (8 * 3 + 9 + 3 * 4 * 3)": 1445,
+            "5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))": 669060,
+            "((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2": 23340,
+        }
+        for expression, result in expressions.items():
+            self.assertEqual(answer.part2([expression]), result)
+
+        self.assertEqual(answer.part2(expressions.keys()), sum(expressions.values()))
