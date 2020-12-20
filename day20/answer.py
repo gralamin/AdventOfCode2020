@@ -54,6 +54,119 @@ class Tile:
     def __repr__(self):
         return f"Tile({self.number})"
 
+    def trim_borders(self):
+        new_tile = [
+            [None for _ in range(len(self.tile) - 2)] for _ in range(len(self.tile) - 2)
+        ]
+        for row in range(len(self.tile)):
+            if row == 0 or row == len(self.tile) - 1:
+                continue
+            for col in range(len(self.tile)):
+                if col == 0 or col == len(self.tile) - 1:
+                    continue
+                new_row = row - 1
+                new_col = col - 1
+                new_tile[new_row][new_col] = self.tile[row][col]
+        new_tile = Tile(self.number, new_tile)
+        return new_tile
+
+    def pretty(self):
+        results = [f"Tile {self.number}:"]
+        x = ["".join(z) for z in self.tile]
+        results.extend(x)
+        return "\n".join(results)
+
+
+class Image:
+    def __init__(self, trimmed_grid):
+        grid_multplier = len(trimmed_grid)
+        one_tile = trimmed_grid[0][0]
+        image = [
+            [None for _ in range(len(one_tile) * grid_multplier)]
+            for _ in range(len(one_tile) * grid_multplier)
+        ]
+        for tile_y, tile_row in enumerate(trimmed_grid):
+            for tile_x, tile in enumerate(tile_row):
+                for y, row in enumerate(tile):
+                    for x, v in enumerate(row):
+                        dest_y = tile_y * len(one_tile) + y - 1
+                        dest_x = tile_x * len(one_tile) + x - 1
+                        image[dest_y][dest_x] = v
+        self.tile = Tile(0, image)
+
+    @property
+    def roughness(self):
+        v = 0
+        for y in self.tile.tile:
+            for x in y:
+                if x == "#":
+                    v += 1
+        return v
+
+    def find_sea_monsters(self):
+        # sea monster as relative coordinates
+        # This is (y, x)
+        sea_monster = [
+            (0, 18),
+            (1, 0),
+            (1, 5),
+            (1, 6),
+            (1, 11),
+            (1, 12),
+            (1, 17),
+            (1, 18),
+            (1, 19),
+            (2, 1),
+            (2, 4),
+            (2, 7),
+            (2, 10),
+            (2, 13),
+            (2, 16),
+        ]
+
+        monster_count = 0
+        possible_tiles = [
+            self.tile,
+            self.tile.flip(),
+            self.tile.rotate(),
+            self.tile.rotate().flip(),
+            self.tile.rotate().rotate(),
+            self.tile.rotate().rotate().flip(),
+            self.tile.rotate().rotate().rotate(),
+            self.tile.rotate().rotate().rotate().flip(),
+        ]
+        for tile in possible_tiles:
+            monster_count, marked_tile = self._mark_sea_monster(tile, sea_monster)
+            if not monster_count:
+                continue
+            self.tile = marked_tile
+            # print(self.tile.pretty())
+            return True
+        return False
+
+    def _mark_sea_monster(self, tile, sea_monster):
+        """Mark all sea monster coordinates with O"""
+        monster_count = 0
+        for y, row in enumerate(tile.tile):
+            for x, v in enumerate(row):
+                found = True
+                for coords in sea_monster:
+                    offset_y = y + coords[0]
+                    offset_x = x + coords[1]
+                    if offset_x >= len(tile.tile) or offset_y >= len(tile.tile):
+                        found = False
+                        break
+                    if tile.tile[offset_y][offset_x] != "#":
+                        found = False
+                        break
+                if found:
+                    monster_count += 1
+                    for coords in sea_monster:
+                        offset_y = y + coords[0]
+                        offset_x = x + coords[1]
+                        tile.tile[offset_y][offset_x] = "O"
+        return monster_count, tile
+
 
 def read_tile_from_strings(strings):
     number = strings[0]
@@ -94,9 +207,9 @@ def backtrack_tiles(tiles, tiles_in_use, grid, row, col):
         for version in tiles[tile_number]:
             left_fit, top_fit = True, True
             if col > 0:
-                left_fit = grid[row][col - 1].matches_left_border(version)
+                left_fit = version.matches_left_border(grid[row][col - 1])
             if row > 0:
-                top_fit = grid[row - 1][col].matches_top_border(version)
+                top_fit = version.matches_top_border(grid[row - 1][col])
             if left_fit and top_fit:
                 # So this looks like its matching
                 grid[row][col] = version
@@ -115,7 +228,7 @@ def backtrack_tiles(tiles, tiles_in_use, grid, row, col):
     return False, grid
 
 
-def part1(all_tiles):
+def find_grid(all_tiles):
     # Precompute possible tiles
     tile_candidates_by_number = {}
     for tile in all_tiles:
@@ -124,20 +237,36 @@ def part1(all_tiles):
         # I suspect therefore, I have duplicates in here.
         tile_candidates_by_number[tile.number] = [
             tile,
+            tile.rotate().rotate().flip(),
+            tile.flip(),
             tile.rotate(),
             tile.rotate().rotate(),
             tile.rotate().rotate().rotate(),
-            tile.flip(),
-            tile.rotate().flip(),
-            tile.rotate().rotate().flip(),
             tile.rotate().rotate().rotate().flip(),
+            tile.rotate().flip(),
         ]
     grid_size = int(math.sqrt(len(all_tiles)))
     grid = [[None for _ in range(grid_size)] for _ in range(grid_size)]
     result, filled_grid = backtrack_tiles(tile_candidates_by_number, set(), grid, 0, 0)
+
+    # Actually looks like I don't match their example when I show it
+    # But get equivalent answers. See debug2 for how mine looks.
+    # output = []
+    # for y in filled_grid:
+    #    cur_row = []
+    #    for x in y:
+    #        cur_row.append(x.tile)
+    #    output.append(cur_row)
+    # print(Image(output).tile.pretty())
+
     if not result:
         raise ValueError("Failed to find solution")
+    return filled_grid
 
+
+def part1(all_tiles):
+    filled_grid = find_grid(all_tiles)
+    grid_size = int(math.sqrt(len(all_tiles)))
     top_left = filled_grid[0][0].number
     top_right = filled_grid[0][grid_size - 1].number
     bottom_left = filled_grid[grid_size - 1][0].number
@@ -145,10 +274,30 @@ def part1(all_tiles):
     return top_left * top_right * bottom_left * bottom_right
 
 
+def part2(all_tiles):
+    filled_grid = find_grid(all_tiles)
+    trimmed_grid = []
+    for y, row in enumerate(filled_grid):
+        trimmed_grid.append([])
+        for tile in row:
+            trimmed = tile.trim_borders()
+            trimmed_grid[y].append(trimmed.tile)
+
+    image = Image(trimmed_grid)
+    result = image.find_sea_monsters()
+    if not result:
+        raise ValueError("Sea monsters not found")
+    return image.roughness
+
+
 if __name__ == "__main__":
     tiles = get_input()
     start = time.perf_counter()
     print("Part1:", part1(tiles))
+    end = time.perf_counter()
+    print("Completed in {}ms.".format((end - start) * 1000))
+    print("\n")
+    print("Part2:", part2(tiles))
     end = time.perf_counter()
     print("Completed in {}ms.".format((end - start) * 1000))
     print("\n")
