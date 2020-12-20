@@ -112,3 +112,6 @@ class TestIntegration(TestCase):
 
     def test_part_1(self):
         self.assertEqual(answer.part1(self.tiles), 20899048083289)
+
+    def test_part_2(self):
+        self.assertEqual(answer.part2(self.tiles), 273)
