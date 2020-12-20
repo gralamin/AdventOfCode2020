@@ -249,16 +249,6 @@ def find_grid(all_tiles):
     grid = [[None for _ in range(grid_size)] for _ in range(grid_size)]
     result, filled_grid = backtrack_tiles(tile_candidates_by_number, set(), grid, 0, 0)
 
-    # Actually looks like I don't match their example when I show it
-    # But get equivalent answers. See debug2 for how mine looks.
-    # output = []
-    # for y in filled_grid:
-    #    cur_row = []
-    #    for x in y:
-    #        cur_row.append(x.tile)
-    #    output.append(cur_row)
-    # print(Image(output).tile.pretty())
-
     if not result:
         raise ValueError("Failed to find solution")
     return filled_grid
