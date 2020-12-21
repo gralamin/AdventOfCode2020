@@ -41,3 +41,15 @@ rlvkp hskzxjz glbktsc vrqkb gcgqb kjz cnj ddt trpllnr ldxh bmrmhm gpddp nbzxn lf
 rxbx dtsjv snhrpv phqjq mn pgkttq krzchjs hzdk vflms fsskh ltftm qgqbpmp zmb hmjs tbb cgplg sbvcdk cjgxf bmrmhm bqtvr qzkjrtl zfrp ldxh fjphsbb nhxjbx ccntj zhqlcr lzbjg szj vfgqpk qlcsjhg qxgsq hqqt bvv dcqz vdlsx jvpslhn lxfm pzzkssr hmzvmm rxv qvmtms qbnzjb fdl jmctq przbq jslg zhnlt pvhf szdnqf gbqfd lffcp qlkdr bqkndvb gpddp gnvtb (contains eggs, dairy, peanuts)
 bdqbc ggkz szdnqf fsskh nbzxn dtsjv clcr qxgsq jlvmh mzvqjf fcgbkq hqqt rkkrx mmhv vtxnv gzlj zkhdzrb jrjfv vfgqpk qgbft fdl lgtnxs snhrpv fglxll jvpslhn pfszh bqtvr bqkndvb zcx pvhf jcpb hxs przbq vvrdp nrrh tqsjd hzdk ldxh qvmtms hcgsh vflms mcsbdnpt gbqtp zlxtk qzkjrtl kjz gcgqb bxtztd szj nrhftzl srzvnxlx tplzk bmrmhm ghljzv lzbjg jvrhm dgmb nhxjbx lxfd (contains peanuts, shellfish)
 qzkjrtl zkhdzrb tbb pgkttq gbqfd jctgkq vprjz rkkrx zhnlt frlgls qbnzjb ggkz msrg bmppb shmzdgxm jcgfs nhxjbx lnrd zfrp jrjfv cccmn vvpxz pvhf nljs tqsjd qlcsjhg tktj fglxll qvmtms nxnbpj mmhv kqsnfjf hnbvdq fqxx nrhftzl nfzn lflxjnh jjjjkmnt svqtgll dsjvgg gpddp kxbvz hfrhh dcqz ddt bqkndvb vtxnv lkfzc jslg zmb krzchjs cfkv hmjs lrzfcf mmzn nrrh bqtvr qbcg vflms hvtzz jkrsn ccntj vfgqpk lzbjg htrvf dkgs rxp gzlj hxs lxfm jlvmh gbqtp khjjdk bmrmhm (contains peanuts)
+
+--- Part Two ---
+Now that you've isolated the inert ingredients, you should have enough information to figure out which ingredient contains which allergen.
+
+In the above example:
+
+mxmxvkd contains dairy.
+sqjhc contains fish.
+fvjkl contains soy.
+Arrange the ingredients alphabetically by their allergen and separate them by commas to produce your canonical dangerous ingredient list. (There should not be any spaces in your canonical dangerous ingredient list.) In the above example, this would be mxmxvkd,sqjhc,fvjkl.
+
+Time to stock your raft with supplies. What is your canonical dangerous ingredient list?
