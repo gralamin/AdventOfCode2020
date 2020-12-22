@@ -13,3 +13,6 @@ class TestIntegration(TestCase):
 
     def test_part_1(self):
         self.assertEqual(answer.part1(self.foods), 5)
+
+    def test_part_2(self):
+        self.assertEqual(answer.part2(self.foods), "mxmxvkd,sqjhc,fvjkl")
