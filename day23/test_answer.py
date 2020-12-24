@@ -13,3 +13,6 @@ class TestIntegration(TestCase):
 
     def test_part_1_100moves(self):
         self.assertEqual(answer.part1(self.cups, debug=False, moves=100), "67384529")
+
+    def test_part_2(self):
+        self.assertEqual(answer.part2(self.cups, debug=False), 149245887792)

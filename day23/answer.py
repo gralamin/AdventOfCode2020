@@ -138,11 +138,102 @@ class CupGame:
         return "".join([str(x.label) for x in ordering])
 
 
+class CupGameMillion(CupGame):
+    # This is way too slow > 10 minutes
+    # New solution time
+
+    def __init__(self, cups):
+        super().__init__(cups)
+        new_cups = [Cup(x) for x in range(self.highest_cup_value, 1000001)]
+        self.cups.extend(new_cups)
+        self.highest_cup_value = max([c.value for c in self.cups])
+        assert self.highest_cup_value == 1000000
+
+    def get_ordering(self, debug):
+        found_one = False
+        before_one = []
+        after_one = []
+        for x in self.cups:
+            if x.label == 1:
+                found_one = True
+                continue
+            if not found_one:
+                before_one.append(x)
+            else:
+                after_one.append(x)
+        ordering = after_one + before_one
+        return ordering[0], ordering[1]
+
+
+class LazyCupGame(CupGame):
+    def __init__(self, cups, num_cups_extended):
+        super().__init__(cups)
+        extended_values = [
+            Cup(x) for x in range(self.highest_cup_value + 1, num_cups_extended + 1)
+        ]
+        self.cups = list(self.cups) + extended_values
+        self.dictionary_links = {}
+        for i in range(len(self.cups)):
+            if i == len(self.cups) - 1:
+                self.dictionary_links[self.cups[i]] = self.cups[0]
+            else:
+                self.dictionary_links[self.cups[i]] = self.cups[i + 1]
+        self.highest_cup_value = max([c.value for c in self.cups])
+        self.lowest_cup_value = min([c.value for c in self.cups])
+
+    def play_round(self, debug):
+        # We are essentially using a spare representation with quick lookups to do this
+        # The logic here is by just changing what links to what, we can do everything
+        # if we had to show the order, that would be longer, but we never have to do
+        # that This means we have massive speed increases!
+
+        # Get three removed
+        removed_cup_a = self.dictionary_links[self.cur_cup]
+        removed_cup_b = self.dictionary_links[removed_cup_a]
+        removed_cup_c = self.dictionary_links[removed_cup_b]
+
+        # Link the current cup to after the removed one
+        self.dictionary_links[self.cur_cup] = self.dictionary_links[removed_cup_c]
+
+        # get new destination
+        destination_cup = Cup(self.cur_cup.label - 1)
+        removed = [removed_cup_a, removed_cup_b, removed_cup_c]
+        while (
+            destination_cup in removed or destination_cup.label < self.lowest_cup_value
+        ):
+            destination_cup = Cup(destination_cup.label - 1)
+            if destination_cup.label < self.lowest_cup_value:
+                destination_cup = Cup(self.highest_cup_value)
+
+        # Link c to the destination
+        self.dictionary_links[removed_cup_c] = self.dictionary_links[destination_cup]
+
+        # Link destination to a
+        self.dictionary_links[destination_cup] = removed_cup_a
+
+        # Get the next cup
+        self.cur_cup = self.dictionary_links[self.cur_cup]
+        self.move += 1
+
+    def get_ordering(self, debug):
+        adjacent_to_one = self.dictionary_links[Cup(1)]
+        next_to_adjacent = self.dictionary_links[adjacent_to_one]
+        return adjacent_to_one, next_to_adjacent
+
+
 def part1(cups, debug=False, moves=100):
     engine = CupGame(cups)
     for _ in range(moves):
         engine.play_round(debug)
     return engine.get_ordering(debug)
+
+
+def part2(cups, debug=False, moves=10000000):
+    engine = LazyCupGame(cups, 1000000)
+    for _ in range(moves):
+        engine.play_round(debug)
+    one, two = engine.get_ordering(debug)
+    return one.label * two.label
 
 
 def get_input():
@@ -158,9 +249,15 @@ def get_input():
 if __name__ == "__main__":
     cups = list(get_input())
     p1cups = copy.deepcopy(cups)
+    p2cups = copy.deepcopy(cups)
 
     start = time.perf_counter()
     print("Part1:", part1(p1cups))
     end = time.perf_counter()
     print("Completed in {}ms.".format((end - start) * 1000))
     print("\n")
+
+    start = time.perf_counter()
+    print("Part2:", part2(p2cups))
+    end = time.perf_counter()
+    print("Completed in {}ms.".format((end - start) * 1000))
